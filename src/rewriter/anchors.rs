@@ -4,7 +4,7 @@ use std::borrow::Cow;
 use url::Url;
 
 /// Rewrite the anchor.
-pub(crate) fn rewrite_anchor_element(el: &mut Element, _commonmark: bool, url: &Option<Url>) {
+pub fn rewrite_anchor_element(el: &mut Element, _commonmark: bool, url: &Option<Url>) {
     if let Some(href) = el.get_attribute("href") {
         let decoded_url: Cow<'_, str> = percent_decode_str(&href).decode_utf8_lossy();
 
@@ -32,7 +32,7 @@ pub(crate) fn rewrite_anchor_element(el: &mut Element, _commonmark: bool, url: &
 }
 
 /// Rewrite the anchor.
-pub(crate) fn rewrite_anchor_element_send(
+pub fn rewrite_anchor_element_send(
     el: &mut lol_html::send::Element,
     _commonmark: bool,
     url: &Option<Url>,

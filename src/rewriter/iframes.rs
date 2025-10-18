@@ -3,7 +3,7 @@ use lol_html::html_content::ContentType::Text;
 use lol_html::html_content::Element;
 
 /// Handle the conversion to iframes.
-pub(crate) fn handle_iframe(element: &mut Element) {
+pub fn handle_iframe(element: &mut Element) {
     if let Some(src) = element.get_attribute("src") {
         if let Some(capture) = YOUTUBE_PATTERN.captures(&src) {
             let media_id = capture.get(1).map_or("", |m| m.as_str());
@@ -35,7 +35,7 @@ pub(crate) fn handle_iframe(element: &mut Element) {
 }
 
 /// Handle the conversion to iframes.
-pub(crate) fn handle_iframe_send(element: &mut lol_html::send::Element) {
+pub fn handle_iframe_send(element: &mut lol_html::send::Element) {
     if let Some(src) = element.get_attribute("src") {
         if let Some(capture) = YOUTUBE_PATTERN.captures(&src) {
             let media_id = capture.get(1).map_or("", |m| m.as_str());

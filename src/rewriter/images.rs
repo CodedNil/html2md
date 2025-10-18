@@ -6,7 +6,7 @@ use url::Url;
 const FRAGMENT: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'<').add(b'>').add(b'`');
 
 /// Rewrite the image.
-pub(crate) fn rewrite_image_element(el: &mut Element, commonmark: bool, url: &Option<Url>) {
+pub fn rewrite_image_element(el: &mut Element, commonmark: bool, url: &Option<Url>) {
     let src = el.get_attribute("src").unwrap_or_default();
     let alt = el.get_attribute("alt").unwrap_or_default();
     let title = el.get_attribute("title").unwrap_or_default();
@@ -40,7 +40,7 @@ pub(crate) fn rewrite_image_element(el: &mut Element, commonmark: bool, url: &Op
         let mut img_url = if src.contains(' ') {
             utf8_percent_encode(&src, FRAGMENT).to_string()
         } else {
-            src.clone()
+            src
         };
 
         if img_url.starts_with('/')
@@ -67,7 +67,7 @@ pub(crate) fn rewrite_image_element(el: &mut Element, commonmark: bool, url: &Op
 }
 
 /// Rewrite the image.
-pub(crate) fn rewrite_image_element_send(
+pub fn rewrite_image_element_send(
     el: &mut lol_html::send::Element,
     commonmark: bool,
     url: &Option<Url>,
@@ -105,7 +105,7 @@ pub(crate) fn rewrite_image_element_send(
         let mut img_url = if src.contains(' ') {
             utf8_percent_encode(&src, FRAGMENT).to_string()
         } else {
-            src.clone()
+            src
         };
 
         if img_url.starts_with('/')

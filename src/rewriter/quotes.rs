@@ -4,7 +4,7 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 
 // Function to handle <blockquote> elements
-pub(crate) fn rewrite_blockquote_element(el: &mut Element, quote_depth: &Rc<AtomicUsize>) {
+pub fn rewrite_blockquote_element(el: &mut Element, quote_depth: &Rc<AtomicUsize>) {
     quote_depth.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
     if let Some(end_tag_handlers) = el.end_tag_handlers() {
@@ -20,7 +20,7 @@ pub(crate) fn rewrite_blockquote_element(el: &mut Element, quote_depth: &Rc<Atom
 }
 
 // Function to handle <blockquote> elements sync
-pub(crate) fn rewrite_blockquote_element_send(
+pub fn rewrite_blockquote_element_send(
     el: &mut lol_html::send::Element,
     quote_depth: &Arc<AtomicUsize>,
 ) {
@@ -38,10 +38,7 @@ pub(crate) fn rewrite_blockquote_element_send(
 }
 
 // Function to handle text within <blockquote> elements
-pub(crate) fn rewrite_blockquote_text(
-    text_chunk: &mut TextChunk<'_>,
-    quote_depth: &Rc<AtomicUsize>,
-) {
+pub fn rewrite_blockquote_text(text_chunk: &mut TextChunk<'_>, quote_depth: &Rc<AtomicUsize>) {
     let depth = quote_depth.load(std::sync::atomic::Ordering::Relaxed);
     let quote_prefix = "> ".repeat(depth);
     let lines: Vec<&str> = text_chunk.as_str().lines().collect();
@@ -69,7 +66,7 @@ pub(crate) fn rewrite_blockquote_text(
 }
 
 // Function to handle text within <blockquote> elements sync
-pub(crate) fn rewrite_blockquote_text_send(
+pub fn rewrite_blockquote_text_send(
     text_chunk: &mut TextChunk<'_>,
     quote_depth: &Arc<AtomicUsize>,
 ) {

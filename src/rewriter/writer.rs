@@ -21,9 +21,9 @@ fn estimate_markdown(html: &str) -> usize {
 }
 
 /// Get the HTML rewriter settings to convert to markdown.
-pub fn get_rewriter_settings<S: ::std::hash::BuildHasher>(
+fn get_rewriter_settings(
     commonmark: bool,
-    custom: Option<&HashSet<String, S>>,
+    custom: Option<&HashSet<String>>,
     url: Option<Url>,
 ) -> RewriteStrSettings<'static, 'static> {
     let mut list_type = None;
@@ -95,9 +95,9 @@ pub fn get_rewriter_settings<S: ::std::hash::BuildHasher>(
 }
 
 /// Get the HTML rewriter settings to convert to markdown sync send.
-pub fn get_rewriter_settings_send<S: ::std::hash::BuildHasher>(
+fn get_rewriter_settings_send(
     commonmark: bool,
-    custom: Option<&HashSet<String, S>>,
+    custom: Option<&HashSet<String>>,
     url: Option<Url>,
 ) -> lol_html::send::Settings<'static, 'static> {
     let mut list_type = None;
@@ -169,7 +169,7 @@ pub fn get_rewriter_settings_send<S: ::std::hash::BuildHasher>(
 }
 
 /// Shortcut to rewrite string and encode correctly
-pub(crate) fn rewrite_str<'h, 's, H: lol_html::HandlerTypes>(
+fn rewrite_str<'h, 's, H: lol_html::HandlerTypes>(
     html: &str,
     settings: impl Into<lol_html::Settings<'h, 's, H>>,
 ) -> Result<Vec<u8>, lol_html::errors::RewritingError> {
@@ -186,7 +186,7 @@ pub(crate) fn rewrite_str<'h, 's, H: lol_html::HandlerTypes>(
 }
 
 /// Convert to markdown streaming re-writer
-pub(crate) fn convert_html_to_markdown(
+pub fn convert_html_to_markdown(
     html: &str,
     custom: Option<&HashSet<String>>,
     commonmark: bool,

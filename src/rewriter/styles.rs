@@ -1,7 +1,7 @@
 use lol_html::html_content::{ContentType::Text, Element};
 
 /// Rewrite the initial elements that need extra styles.
-pub(crate) fn rewrite_style_element(el: &mut Element) {
+pub fn rewrite_style_element(el: &mut Element) {
     let tag_name = el.tag_name();
 
     let mark = match tag_name.as_str() {
@@ -17,7 +17,7 @@ pub(crate) fn rewrite_style_element(el: &mut Element) {
 }
 
 /// Rewrite the initial elements that need extra styles.
-pub(crate) fn rewrite_style_element_send(el: &mut lol_html::send::Element) {
+pub fn rewrite_style_element_send(el: &mut lol_html::send::Element) {
     let tag_name = el.tag_name();
 
     let mark = match tag_name.as_str() {

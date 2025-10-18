@@ -4,7 +4,7 @@ use lol_html::html_content::Element;
 
 // Function to handle list elements and items
 #[inline]
-pub(crate) fn handle_list_or_item(
+pub fn handle_list_or_item(
     element: &mut Element,
     list_type: &mut Option<String>,
     order_counter: &mut usize,
@@ -32,7 +32,7 @@ pub(crate) fn handle_list_or_item(
 
 // Function to handle list elements and items
 #[inline]
-pub(crate) fn handle_list_or_item_send(
+pub fn handle_list_or_item_send(
     element: &mut lol_html::send::Element,
     list_type: &mut Option<String>,
     order_counter: &mut usize,
