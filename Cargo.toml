@@ -11,16 +11,22 @@ repository = "https://github.com/spider-rs/html2md"
 authors = ["j-mendez <jeff@spider.cloud>"]
 readme = "../README.md"
 
-[badges]
-maintenance = { status = "as-is" }
-
 [lib]
 name = "html2md"
 
 [dependencies]
-regex = "1"
-lazy_static = "1"
-percent-encoding = "2"
-auto_encoder = "0"
-url = "2"
-lol_html = "2"
+regex-lite = "0.1"
+url = { version = "2.5", default-features = false }
+percent-encoding = { version = "2.3", default-features = false }
+auto_encoder = "0.1"
+lol_html = "2.7"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+# nursery = { level = "warn", priority = -1 }
+too-many-lines = "allow"
+ref_option = "allow"
+must-use-candidate = "allow"

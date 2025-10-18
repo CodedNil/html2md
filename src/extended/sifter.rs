@@ -49,7 +49,7 @@ pub trait WhitespaceSifter: AsRef<str> {
 /// A trait containing all `Vec<u8>` whitespace-sifting functions.
 pub trait WhitespaceSifterBytes: AsRef<[u8]> {
     /// This removes duplicate whitespaces from a `Vec<u8>`.
-    /// It supports the same whitespace definition as [char::is_ascii_whitespace].
+    /// It supports the same whitespace definition as `[char::is_ascii_whitespace]`.
     #[must_use]
     fn sift_bytes(&self) -> String {
         let input = self.as_ref();

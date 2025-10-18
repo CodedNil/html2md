@@ -1,15 +1,12 @@
 use lol_html::html_content::Element;
 use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
+use std::fmt::Write;
 use url::Url;
 
 const FRAGMENT: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'<').add(b'>').add(b'`');
 
 /// Rewrite the image.
-pub(crate) fn rewrite_image_element(
-    el: &mut Element,
-    commonmark: bool,
-    url: &Option<Url>,
-) -> Result<(), std::io::Error> {
+pub(crate) fn rewrite_image_element(el: &mut Element, commonmark: bool, url: &Option<Url>) {
     let src = el.get_attribute("src").unwrap_or_default();
     let alt = el.get_attribute("alt").unwrap_or_default();
     let title = el.get_attribute("title").unwrap_or_default();
@@ -19,22 +16,22 @@ pub(crate) fn rewrite_image_element(
     let align = el.get_attribute("align");
 
     if commonmark && (height.is_some() || width.is_some() || align.is_some()) {
-        let mut img_tag = format!("<img src=\"{}\"", src);
+        let mut img_tag = format!("<img src=\"{src}\"");
 
         if let Some(alt) = el.get_attribute("alt") {
-            img_tag.push_str(&format!(" alt=\"{}\"", alt));
+            write!(img_tag, " alt=\"{alt}\"").unwrap();
         }
         if let Some(title) = el.get_attribute("title") {
-            img_tag.push_str(&format!(" title=\"{}\"", title));
+            write!(img_tag, " title=\"{title}\"").unwrap();
         }
         if let Some(height) = height {
-            img_tag.push_str(&format!(" height=\"{}\"", height));
+            write!(img_tag, " height=\"{height}\"").unwrap();
         }
         if let Some(width) = width {
-            img_tag.push_str(&format!(" width=\"{}\"", width));
+            write!(img_tag, " width=\"{width}\"").unwrap();
         }
         if let Some(align) = align {
-            img_tag.push_str(&format!(" align=\"{}\"", align));
+            write!(img_tag, " align=\"{align}\"").unwrap();
         }
 
         img_tag.push_str(" />");
@@ -58,17 +55,15 @@ pub(crate) fn rewrite_image_element(
                 "![{}]({}{})",
                 alt,
                 img_url,
-                if !title.is_empty() {
-                    format!(" \"{}\"", title)
+                if title.is_empty() {
+                    String::new()
                 } else {
-                    "".to_string()
+                    format!(" \"{title}\"")
                 }
             ),
             lol_html::html_content::ContentType::Html,
         );
     }
-
-    Ok(())
 }
 
 /// Rewrite the image.
@@ -76,7 +71,7 @@ pub(crate) fn rewrite_image_element_send(
     el: &mut lol_html::send::Element,
     commonmark: bool,
     url: &Option<Url>,
-) -> Result<(), std::io::Error> {
+) {
     let src = el.get_attribute("src").unwrap_or_default();
     let alt = el.get_attribute("alt").unwrap_or_default();
     let title = el.get_attribute("title").unwrap_or_default();
@@ -86,22 +81,22 @@ pub(crate) fn rewrite_image_element_send(
     let align = el.get_attribute("align");
 
     if commonmark && (height.is_some() || width.is_some() || align.is_some()) {
-        let mut img_tag = format!("<img src=\"{}\"", src);
+        let mut img_tag = format!("<img src=\"{src}\"");
 
         if let Some(alt) = el.get_attribute("alt") {
-            img_tag.push_str(&format!(" alt=\"{}\"", alt));
+            write!(img_tag, " alt=\"{alt}\"").unwrap();
         }
         if let Some(title) = el.get_attribute("title") {
-            img_tag.push_str(&format!(" title=\"{}\"", title));
+            write!(img_tag, " title=\"{title}\"").unwrap();
         }
         if let Some(height) = height {
-            img_tag.push_str(&format!(" height=\"{}\"", height));
+            write!(img_tag, " height=\"{height}\"").unwrap();
         }
         if let Some(width) = width {
-            img_tag.push_str(&format!(" width=\"{}\"", width));
+            write!(img_tag, " width=\"{width}\"").unwrap();
         }
         if let Some(align) = align {
-            img_tag.push_str(&format!(" align=\"{}\"", align));
+            write!(img_tag, " align=\"{align}\"").unwrap();
         }
 
         img_tag.push_str(" />");
@@ -125,15 +120,13 @@ pub(crate) fn rewrite_image_element_send(
                 "![{}]({}{})",
                 alt,
                 img_url,
-                if !title.is_empty() {
-                    format!(" \"{}\"", title)
+                if title.is_empty() {
+                    String::new()
                 } else {
-                    "".to_string()
+                    format!(" \"{title}\"")
                 }
             ),
             lol_html::html_content::ContentType::Html,
         );
     }
-
-    Ok(())
 }

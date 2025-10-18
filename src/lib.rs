@@ -1,26 +1,21 @@
 use extended::sifter::{WhitespaceSifter, WhitespaceSifterBytes};
-use lazy_static::lazy_static;
-use regex::Regex;
+use regex_lite::Regex;
+use std::sync::LazyLock;
 
-// we want to just use the rewriter instead for v0.1.
 pub mod extended;
-
 pub mod rewriter;
 
-lazy_static! {
-    static ref MARKDOWN_MIDDLE_KEYCHARS: Regex = Regex::new(r"[<>*\\_~]").expect("valid regex pattern"); // for Markdown escaping
-    static ref MARKDOWN_MIDDLE_KEYCHARS_SET: regex::RegexSet = regex::RegexSet::new([
-        r"[<>*\\_~]",  // Matches any single markdown character
-        r"&nbsp;"      // Matches the entire "&nbsp;" string
-    ]).expect("valid regex set");
-}
+static MARKDOWN_MIDDLE_KEYCHARS_A: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"[<>*\\_~]").unwrap());
+static MARKDOWN_MIDDLE_KEYCHARS_B: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"&nbsp;").unwrap());
 
 /// Main function of this library to come. Rewrites incoming HTML, converts it into Markdown
 /// and returns converted string. Incomplete work in progress for major performance increases.
 /// # Arguments
 /// `html` is source HTML as `String`
 pub fn rewrite_html(html: &str, commonmark: bool) -> String {
-    rewriter::writer::convert_html_to_markdown(html, &None, commonmark, &None).unwrap_or_default()
+    rewriter::writer::convert_html_to_markdown(html, None, commonmark, &None).unwrap_or_default()
 }
 
 /// Called after all processing has been finished
@@ -39,9 +34,8 @@ pub fn clean_markdown_bytes(input: &Vec<u8>) -> String {
 
 /// Replace the markdown chars cleanly.
 pub fn replace_markdown_chars(input: &str) -> String {
-    use crate::MARKDOWN_MIDDLE_KEYCHARS_SET;
-
-    if !MARKDOWN_MIDDLE_KEYCHARS_SET.is_match(input) {
+    use crate::{MARKDOWN_MIDDLE_KEYCHARS_A, MARKDOWN_MIDDLE_KEYCHARS_B};
+    if !(MARKDOWN_MIDDLE_KEYCHARS_A.is_match(input) || MARKDOWN_MIDDLE_KEYCHARS_B.is_match(input)) {
         return input.to_string();
     }
 

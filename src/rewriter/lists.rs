@@ -8,7 +8,7 @@ pub(crate) fn handle_list_or_item(
     element: &mut Element,
     list_type: &mut Option<String>,
     order_counter: &mut usize,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+) {
     match element.tag_name().as_str() {
         "ul" | "menu" => {
             *list_type = Some("ul".to_string());
@@ -21,15 +21,13 @@ pub(crate) fn handle_list_or_item(
         "li" => {
             if list_type.as_deref() == Some("ol") {
                 let order = order_counter.increment();
-                element.before(&format!("\n{}. ", order), ContentType::Text);
+                element.before(&format!("\n{order}. "), ContentType::Text);
             } else {
                 element.before("\n* ", ContentType::Text);
             }
         }
         _ => (),
     }
-
-    Ok(())
 }
 
 // Function to handle list elements and items
@@ -38,7 +36,7 @@ pub(crate) fn handle_list_or_item_send(
     element: &mut lol_html::send::Element,
     list_type: &mut Option<String>,
     order_counter: &mut usize,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+) {
     match element.tag_name().as_str() {
         "ul" | "menu" => {
             *list_type = Some("ul".to_string());
@@ -56,13 +54,11 @@ pub(crate) fn handle_list_or_item_send(
             if ordered {
                 let order = order_counter.increment();
 
-                element.before(&format!("\n{}. ", order), ContentType::Text);
+                element.before(&format!("\n{order}. "), ContentType::Text);
             } else {
                 element.before("\n* ", ContentType::Text);
             }
         }
         _ => (),
     }
-
-    Ok(())
 }

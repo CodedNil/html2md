@@ -5,6 +5,7 @@ use crate::rewriter::handle::handle_tag_send;
 use crate::rewriter::quotes::rewrite_blockquote_text_send;
 use lol_html::{RewriteStrSettings, element};
 use lol_html::{doc_comments, doctype, text};
+use std::collections::HashSet;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
@@ -20,9 +21,9 @@ fn estimate_markdown(html: &str) -> usize {
 }
 
 /// Get the HTML rewriter settings to convert to markdown.
-pub fn get_rewriter_settings(
+pub fn get_rewriter_settings<S: ::std::hash::BuildHasher>(
     commonmark: bool,
-    custom: &Option<std::collections::HashSet<String>>,
+    custom: Option<&HashSet<String, S>>,
     url: Option<Url>,
 ) -> RewriteStrSettings<'static, 'static> {
     let mut list_type = None;
@@ -31,14 +32,11 @@ pub fn get_rewriter_settings(
     let quote_depth1 = quote_depth.clone();
     let mut inside_table = false;
 
-    let mut element_content_handlers = Vec::with_capacity(
-        4 + custom
-            .as_ref()
-            .map_or(0, |c| if c.is_empty() { 0 } else { 1 }),
-    );
+    let mut element_content_handlers =
+        Vec::with_capacity(4 + custom.as_ref().map_or(0, |c| usize::from(!c.is_empty())));
 
     element_content_handlers.push(text!("blockquote, q, cite", move |el| {
-        let _ = rewrite_blockquote_text(el, quote_depth1.clone());
+        rewrite_blockquote_text(el, &quote_depth1);
         Ok(())
     }));
 
@@ -56,13 +54,13 @@ pub fn get_rewriter_settings(
     }));
 
     element_content_handlers.push(element!("*", move |el| {
-        let _ = handle_tag(
+        handle_tag(
             el,
             commonmark,
             &url,
             &mut list_type,
             &mut order_counter,
-            quote_depth.clone(),
+            &quote_depth,
             &mut inside_table,
         );
         Ok(())
@@ -97,9 +95,9 @@ pub fn get_rewriter_settings(
 }
 
 /// Get the HTML rewriter settings to convert to markdown sync send.
-pub fn get_rewriter_settings_send(
+pub fn get_rewriter_settings_send<S: ::std::hash::BuildHasher>(
     commonmark: bool,
-    custom: &Option<std::collections::HashSet<String>>,
+    custom: Option<&HashSet<String, S>>,
     url: Option<Url>,
 ) -> lol_html::send::Settings<'static, 'static> {
     let mut list_type = None;
@@ -108,14 +106,11 @@ pub fn get_rewriter_settings_send(
     let quote_depth1 = quote_depth.clone();
     let mut inside_table = false;
 
-    let mut element_content_handlers = Vec::with_capacity(
-        4 + custom
-            .as_ref()
-            .map_or(0, |c| if c.is_empty() { 0 } else { 1 }),
-    );
+    let mut element_content_handlers =
+        Vec::with_capacity(4 + custom.as_ref().map_or(0, |c| usize::from(!c.is_empty())));
 
     element_content_handlers.push(text!("blockquote, q, cite", move |el| {
-        let _ = rewrite_blockquote_text_send(el, quote_depth.clone());
+        rewrite_blockquote_text_send(el, &quote_depth);
         Ok(())
     }));
 
@@ -133,13 +128,13 @@ pub fn get_rewriter_settings_send(
     }));
 
     element_content_handlers.push(element!("*", move |el| {
-        let _ = handle_tag_send(
+        handle_tag_send(
             el,
             commonmark,
             &url,
             &mut list_type,
             &mut order_counter,
-            quote_depth1.clone(),
+            &quote_depth1,
             &mut inside_table,
         );
         Ok(())
@@ -193,7 +188,7 @@ pub(crate) fn rewrite_str<'h, 's, H: lol_html::HandlerTypes>(
 /// Convert to markdown streaming re-writer
 pub(crate) fn convert_html_to_markdown(
     html: &str,
-    custom: &Option<std::collections::HashSet<String>>,
+    custom: Option<&HashSet<String>>,
     commonmark: bool,
     url: &Option<Url>,
 ) -> Result<String, Box<dyn std::error::Error>> {

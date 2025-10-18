@@ -1,4 +1,4 @@
-use super::anchors::{rewrite_anchor_element, rewrite_anchor_element_send};
+use super::anchors::rewrite_anchor_element_send;
 use super::iframes::{handle_iframe, handle_iframe_send};
 use super::images::{rewrite_image_element, rewrite_image_element_send};
 use super::lists::{handle_list_or_item, handle_list_or_item_send};
@@ -15,7 +15,7 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 use url::Url;
 
-/// Handle the lol_html tag.
+/// Handle the `lol_html` tag.
 #[inline]
 pub fn handle_tag(
     element: &mut Element,
@@ -23,9 +23,9 @@ pub fn handle_tag(
     url: &Option<Url>,
     list_type: &mut Option<String>,
     order_counter: &mut usize,
-    quote_depth: Rc<AtomicUsize>,
+    quote_depth: &Rc<AtomicUsize>,
     inside_table: &mut bool,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+) {
     let element_name = element.tag_name();
 
     let remove_attrs =
@@ -36,10 +36,10 @@ pub fn handle_tag(
         let attrs = element
             .attributes()
             .iter()
-            .map(|f| f.name())
+            .map(lol_html::html_content::Attribute::name)
             .collect::<Vec<String>>();
 
-        for attr in attrs.iter() {
+        for attr in &attrs {
             element.remove_attribute(attr);
         }
     } else {
@@ -72,7 +72,7 @@ pub fn handle_tag(
             element.before("###### ", Text);
             insert_newline_after(element);
         }
-        "p" => {
+        "p" | "div" | "section" | "header" | "footer" => {
             insert_newline_before(element);
             insert_newline_after(element);
         }
@@ -82,11 +82,8 @@ pub fn handle_tag(
             insert_newline_after(element);
         }
         "br" => insert_newline_after(element),
-        "a" => {
-            let _ = rewrite_anchor_element(element, commonmark, url);
-        }
-        "img" => {
-            let _ = rewrite_image_element(element, commonmark, url);
+        "a" | "img" => {
+            rewrite_image_element(element, commonmark, url);
         }
         "table" => {
             *inside_table = true;
@@ -111,20 +108,16 @@ pub fn handle_tag(
             element.after("|", Html);
         }
         "iframe" => {
-            let _ = handle_iframe(element);
+            handle_iframe(element);
         }
         "b" | "i" | "s" | "strong" | "em" | "del" => {
-            let _ = rewrite_style_element(element);
+            rewrite_style_element(element);
         }
         "ol" | "ul" | "menu" | "li" => {
-            let _ = handle_list_or_item(element, list_type, order_counter);
+            handle_list_or_item(element, list_type, order_counter);
         }
         "q" | "cite" | "blockquote" => {
-            let _ = rewrite_blockquote_element(element, quote_depth);
-        }
-        "div" | "section" | "header" | "footer" => {
-            insert_newline_before(element);
-            insert_newline_after(element);
+            rewrite_blockquote_element(element, quote_depth);
         }
         "pre" => {
             element.before("\n```\n", Html);
@@ -136,11 +129,9 @@ pub fn handle_tag(
         }
         _ => (),
     }
-
-    Ok(())
 }
 
-/// Handle the lol_html tag.
+/// Handle the `lol_html` tag.
 #[inline]
 pub fn handle_tag_send(
     element: &mut lol_html::send::Element,
@@ -148,9 +139,9 @@ pub fn handle_tag_send(
     url: &Option<Url>,
     list_type: &mut Option<String>,
     order_counter: &mut usize,
-    quote_depth: Arc<AtomicUsize>,
+    quote_depth: &Arc<AtomicUsize>,
     inside_table: &mut bool,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+) {
     let element_name = element.tag_name();
 
     let remove_attrs =
@@ -161,10 +152,10 @@ pub fn handle_tag_send(
         let attrs = element
             .attributes()
             .iter()
-            .map(|f| f.name())
+            .map(lol_html::html_content::Attribute::name)
             .collect::<Vec<String>>();
 
-        for attr in attrs.iter() {
+        for attr in &attrs {
             element.remove_attribute(attr);
         }
     } else {
@@ -197,7 +188,7 @@ pub fn handle_tag_send(
             element.before("###### ", Text);
             insert_newline_after_send(element);
         }
-        "p" => {
+        "p" | "div" | "section" | "header" | "footer" => {
             insert_newline_before_send(element);
             insert_newline_after_send(element);
         }
@@ -208,10 +199,10 @@ pub fn handle_tag_send(
         }
         "br" => insert_newline_after_send(element),
         "a" => {
-            let _ = rewrite_anchor_element_send(element, commonmark, url);
+            rewrite_anchor_element_send(element, commonmark, url);
         }
         "img" => {
-            let _ = rewrite_image_element_send(element, commonmark, url);
+            rewrite_image_element_send(element, commonmark, url);
         }
         "table" => *inside_table = true,
         "tr" => {
@@ -220,7 +211,7 @@ pub fn handle_tag_send(
         "th" => {
             if *inside_table {
                 element.before("|", Html);
-                *inside_table = false
+                *inside_table = false;
             }
             if commonmark {
                 element.before("** ", Html);
@@ -233,20 +224,16 @@ pub fn handle_tag_send(
             element.after("|", Html);
         }
         "iframe" => {
-            let _ = handle_iframe_send(element);
+            handle_iframe_send(element);
         }
         "b" | "i" | "s" | "strong" | "em" | "del" => {
-            let _ = rewrite_style_element_send(element);
+            rewrite_style_element_send(element);
         }
         "ol" | "ul" | "menu" | "li" => {
-            let _ = handle_list_or_item_send(element, list_type, order_counter);
+            handle_list_or_item_send(element, list_type, order_counter);
         }
         "q" | "cite" | "blockquote" => {
-            let _ = rewrite_blockquote_element_send(element, quote_depth.clone());
-        }
-        "div" | "section" | "header" | "footer" => {
-            insert_newline_before_send(element);
-            insert_newline_after_send(element);
+            rewrite_blockquote_element_send(element, quote_depth);
         }
         "pre" => {
             element.before("\n```\n", Html);
@@ -258,6 +245,4 @@ pub fn handle_tag_send(
         }
         _ => (),
     }
-
-    Ok(())
 }
