@@ -27,3 +27,4 @@ nursery = { level = "warn", priority = -1 }
 must-use-candidate = "allow"
 missing-errors-doc = "allow"
 implicit-hasher = "allow"
+ref-option = "allow"

@@ -1,49 +1,9 @@
 use auto_encoder::auto_encode_bytes;
-use std::str;
 
 /// Charector handling bytes.
 enum Character {
     SingleByte { data: u8 },
     MultiByte { len: usize },
-}
-
-/// A trait containing all `string` whitespace-sifting functions.
-pub trait WhitespaceSifter: AsRef<str> {
-    /// This removes duplicate [whitespaces](https://doc.rust-lang.org/reference/whitespace.html) from a `string` implementing `AsRef<str>`.
-    /// This follows the [is_ascii_whitespace](https://doc.rust-lang.org/std/primitive.char.html#method.is_ascii_whitespace) implementation.
-    /// This treats carriage-returns as just one `char` in the `string`.
-    #[must_use]
-    fn sift(&self) -> String {
-        let input: &str = self.as_ref();
-        let mut out: String = String::with_capacity(input.len());
-        sift_preallocated(input.as_bytes(), &mut out);
-        out
-    }
-
-    /// This removes duplicate [whitespaces](https://doc.rust-lang.org/reference/whitespace.html) from a `string` implementing `AsRef<str>`.
-    /// This follows the [is_ascii_whitespace](https://doc.rust-lang.org/std/primitive.char.html#method.is_ascii_whitespace) implementation.
-    /// This preserves deduplicated newlines.
-    /// This treats carriage-returns as just one `char` in the `string`.
-    #[must_use]
-    fn sift_preserve_newlines(&self) -> String {
-        let input = self.as_ref();
-        let mut out = String::with_capacity(input.len());
-        let bytes = input.as_bytes();
-        let mut ind: usize = 0;
-
-        while ind < bytes.len() {
-            sift_preallocated_until_newline(bytes, &mut ind, &mut out);
-        }
-
-        if out.ends_with("\r\n") {
-            let _ = out.pop();
-            let _ = out.pop();
-        } else if out.ends_with('\n') {
-            let _ = out.pop();
-        }
-
-        out
-    }
 }
 
 /// A trait containing all `Vec<u8>` whitespace-sifting functions.
@@ -81,7 +41,6 @@ pub trait WhitespaceSifterBytes: AsRef<[u8]> {
     }
 }
 
-impl<T: AsRef<str>> WhitespaceSifter for T {}
 impl<T: AsRef<[u8]>> WhitespaceSifterBytes for T {}
 
 /// A custom implementation of `str::trim_start`.

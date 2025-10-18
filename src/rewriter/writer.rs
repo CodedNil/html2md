@@ -1,13 +1,10 @@
 use super::handle::handle_tag;
 use super::quotes::rewrite_blockquote_text;
 use crate::clean_markdown_bytes;
-use crate::rewriter::handle::handle_tag_send;
-use crate::rewriter::quotes::rewrite_blockquote_text_send;
 use lol_html::{RewriteStrSettings, element};
 use lol_html::{doc_comments, doctype, text};
 use std::collections::HashSet;
 use std::rc::Rc;
-use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 use url::Url;
 
@@ -91,80 +88,6 @@ fn get_rewriter_settings(
         ],
         element_content_handlers,
         ..RewriteStrSettings::default()
-    }
-}
-
-/// Get the HTML rewriter settings to convert to markdown sync send.
-fn get_rewriter_settings_send(
-    commonmark: bool,
-    custom: Option<&HashSet<String>>,
-    url: Option<Url>,
-) -> lol_html::send::Settings<'static, 'static> {
-    let mut list_type = None;
-    let mut order_counter = 0_usize;
-    let quote_depth = Arc::new(AtomicUsize::new(0));
-    let quote_depth1 = quote_depth.clone();
-    let mut inside_table = false;
-
-    let mut element_content_handlers =
-        Vec::with_capacity(4 + custom.as_ref().map_or(0, |c| usize::from(!c.is_empty())));
-
-    element_content_handlers.push(text!("blockquote, q, cite", move |el| {
-        rewrite_blockquote_text_send(el, &quote_depth);
-        Ok(())
-    }));
-
-    element_content_handlers.push(text!(
-        "*:not(script):not(head):not(style):not(svg)",
-        move |el| {
-            *el.as_mut_str() = crate::replace_markdown_chars(el.as_str().trim());
-            Ok(())
-        }
-    ));
-
-    element_content_handlers.push(element!("head, nav, script, noscript, style", |el| {
-        el.remove();
-        Ok(())
-    }));
-
-    element_content_handlers.push(element!("*", move |el| {
-        handle_tag_send(
-            el,
-            commonmark,
-            &url,
-            &mut list_type,
-            &mut order_counter,
-            &quote_depth1,
-            &mut inside_table,
-        );
-        Ok(())
-    }));
-
-    if let Some(ignore) = custom {
-        let ignore_handler = element!(
-            ignore.iter().cloned().collect::<Vec<String>>().join(","),
-            |el| {
-                el.remove();
-                Ok(())
-            }
-        );
-
-        element_content_handlers.push(ignore_handler);
-    }
-
-    lol_html::send::Settings {
-        document_content_handlers: vec![
-            doc_comments!(|c| {
-                c.remove();
-                Ok(())
-            }),
-            doctype!(|c| {
-                c.remove();
-                Ok(())
-            }),
-        ],
-        element_content_handlers,
-        ..lol_html::send::Settings::new_send()
     }
 }
 

@@ -1,8 +1,7 @@
-use extended::sifter::{WhitespaceSifter, WhitespaceSifterBytes};
 use regex_lite::Regex;
+use rewriter::sifter::WhitespaceSifterBytes;
 use std::sync::LazyLock;
 
-pub mod extended;
 pub mod rewriter;
 
 static MARKDOWN_MIDDLE_KEYCHARS_A: LazyLock<Regex> =
@@ -21,19 +20,12 @@ pub fn rewrite_html(html: &str, commonmark: bool) -> String {
 /// Called after all processing has been finished
 ///
 /// Clears excessive punctuation that would be trimmed by renderer anyway
-pub fn clean_markdown(input: &str) -> String {
-    input.sift()
-}
-
-/// Called after all processing has been finished
-///
-/// Clears excessive punctuation that would be trimmed by renderer anyway
-pub fn clean_markdown_bytes(input: &Vec<u8>) -> String {
+fn clean_markdown_bytes(input: &Vec<u8>) -> String {
     input.sift_bytes()
 }
 
 /// Replace the markdown chars cleanly.
-pub fn replace_markdown_chars(input: &str) -> String {
+fn replace_markdown_chars(input: &str) -> String {
     use crate::{MARKDOWN_MIDDLE_KEYCHARS_A, MARKDOWN_MIDDLE_KEYCHARS_B};
     if !(MARKDOWN_MIDDLE_KEYCHARS_A.is_match(input) || MARKDOWN_MIDDLE_KEYCHARS_B.is_match(input)) {
         return input.to_string();

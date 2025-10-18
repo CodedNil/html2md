@@ -29,36 +29,3 @@ pub fn handle_list_or_item(
         _ => (),
     }
 }
-
-// Function to handle list elements and items
-#[inline]
-pub fn handle_list_or_item_send(
-    element: &mut lol_html::send::Element,
-    list_type: &mut Option<String>,
-    order_counter: &mut usize,
-) {
-    match element.tag_name().as_str() {
-        "ul" | "menu" => {
-            *list_type = Some("ul".to_string());
-
-            order_counter.reset();
-        }
-        "ol" => {
-            *list_type = Some("ol".to_string());
-
-            order_counter.reset();
-        }
-        "li" => {
-            let ordered: bool = list_type.as_deref().eq(&Some("ol"));
-
-            if ordered {
-                let order = order_counter.increment();
-
-                element.before(&format!("\n{order}. "), ContentType::Text);
-            } else {
-                element.before("\n* ", ContentType::Text);
-            }
-        }
-        _ => (),
-    }
-}
