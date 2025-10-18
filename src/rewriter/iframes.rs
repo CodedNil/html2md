@@ -29,7 +29,7 @@ pub(crate) fn handle_iframe(
             let owner_id = capture.get(1).map_or("", |m| m.as_str());
             let video_id = capture.get(2).map_or("", |m| m.as_str());
             element.replace(
-                &&format!("[![Embedded VK video](https://st.vk.com/images/icons/video_empty_2x.png)](https://vk.com/video{oid}_{vid})", oid = owner_id, vid = video_id),
+                &format!("[![Embedded VK video](https://st.vk.com/images/icons/video_empty_2x.png)](https://vk.com/video{oid}_{vid})", oid = owner_id, vid = video_id),
                 Text,
             );
             return Ok(());
@@ -66,7 +66,7 @@ pub(crate) fn handle_iframe_send(
             let owner_id = capture.get(1).map_or("", |m| m.as_str());
             let video_id = capture.get(2).map_or("", |m| m.as_str());
             element.replace(
-                &&format!("[![Embedded VK video](https://st.vk.com/images/icons/video_empty_2x.png)](https://vk.com/video{oid}_{vid})", oid = owner_id, vid = video_id),
+                &format!("[![Embedded VK video](https://st.vk.com/images/icons/video_empty_2x.png)](https://vk.com/video{oid}_{vid})", oid = owner_id, vid = video_id),
                 Text,
             );
             return Ok(());

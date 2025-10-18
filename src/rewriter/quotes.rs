@@ -1,8 +1,8 @@
 use lol_html::html_content::{ContentType, Element, TextChunk};
 use std::error::Error;
 use std::rc::Rc;
-use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
 
 // Function to handle <blockquote> elements
 pub(crate) fn rewrite_blockquote_element(
@@ -62,7 +62,7 @@ pub(crate) fn rewrite_blockquote_text(
         .enumerate()
         .map(|(i, line)| {
             if i >= 1 && i == total_lines - 1 {
-                format!("{}", line)
+                line.to_string()
             } else {
                 format!("{}{}", quote_prefix, line)
             }
@@ -96,7 +96,7 @@ pub(crate) fn rewrite_blockquote_text_send(
         .enumerate()
         .map(|(i, line)| {
             if i >= 1 && i == total_lines - 1 {
-                format!("{}", line)
+                line.to_string()
             } else {
                 format!("{}{}", quote_prefix, line)
             }

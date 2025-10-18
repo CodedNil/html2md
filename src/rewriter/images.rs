@@ -1,5 +1,5 @@
 use lol_html::html_content::Element;
-use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use url::Url;
 
 const FRAGMENT: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'<').add(b'>').add(b'`');
@@ -12,7 +12,7 @@ pub(crate) fn rewrite_image_element(
 ) -> Result<(), std::io::Error> {
     let src = el.get_attribute("src").unwrap_or_default();
     let alt = el.get_attribute("alt").unwrap_or_default();
-    let title = el.get_attribute("title").unwrap_or_else(|| "".to_string());
+    let title = el.get_attribute("title").unwrap_or_default();
 
     let height = el.get_attribute("height");
     let width = el.get_attribute("width");
@@ -46,12 +46,11 @@ pub(crate) fn rewrite_image_element(
             src.clone()
         };
 
-        if img_url.starts_with('/') {
-            if let Some(ref u) = url {
-                if let Ok(n) = u.join(&img_url) {
-                    img_url = n.to_string();
-                }
-            }
+        if img_url.starts_with('/')
+            && let Some(u) = url
+            && let Ok(n) = u.join(&img_url)
+        {
+            img_url = n.to_string();
         }
 
         el.replace(
@@ -80,7 +79,7 @@ pub(crate) fn rewrite_image_element_send(
 ) -> Result<(), std::io::Error> {
     let src = el.get_attribute("src").unwrap_or_default();
     let alt = el.get_attribute("alt").unwrap_or_default();
-    let title = el.get_attribute("title").unwrap_or_else(|| "".to_string());
+    let title = el.get_attribute("title").unwrap_or_default();
 
     let height = el.get_attribute("height");
     let width = el.get_attribute("width");
@@ -114,12 +113,11 @@ pub(crate) fn rewrite_image_element_send(
             src.clone()
         };
 
-        if img_url.starts_with('/') {
-            if let Some(ref u) = url {
-                if let Ok(n) = u.join(&img_url) {
-                    img_url = n.to_string();
-                }
-            }
+        if img_url.starts_with('/')
+            && let Some(u) = url
+            && let Ok(n) = u.join(&img_url)
+        {
+            img_url = n.to_string();
         }
 
         el.replace(

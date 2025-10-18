@@ -11,8 +11,8 @@ use super::{
 use lol_html::html_content::ContentType::{Html, Text};
 use lol_html::html_content::Element;
 use std::rc::Rc;
-use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
 use url::Url;
 
 /// Handle the lol_html tag.
@@ -21,7 +21,7 @@ pub fn handle_tag(
     element: &mut Element,
     commonmark: bool,
     url: &Option<Url>,
-    mut list_type: &mut Option<String>,
+    list_type: &mut Option<String>,
     order_counter: &mut usize,
     quote_depth: Rc<AtomicUsize>,
     inside_table: &mut bool,
@@ -40,7 +40,7 @@ pub fn handle_tag(
             .collect::<Vec<String>>();
 
         for attr in attrs.iter() {
-            element.remove_attribute(&attr);
+            element.remove_attribute(attr);
         }
     } else {
         element.remove_and_keep_content();
@@ -86,7 +86,7 @@ pub fn handle_tag(
             let _ = rewrite_anchor_element(element, commonmark, url);
         }
         "img" => {
-            let _ = rewrite_image_element(element, commonmark, &url);
+            let _ = rewrite_image_element(element, commonmark, url);
         }
         "table" => {
             *inside_table = true;
@@ -117,7 +117,7 @@ pub fn handle_tag(
             let _ = rewrite_style_element(element);
         }
         "ol" | "ul" | "menu" | "li" => {
-            let _ = handle_list_or_item(element, &mut list_type, order_counter);
+            let _ = handle_list_or_item(element, list_type, order_counter);
         }
         "q" | "cite" | "blockquote" => {
             let _ = rewrite_blockquote_element(element, quote_depth);
@@ -165,7 +165,7 @@ pub fn handle_tag_send(
             .collect::<Vec<String>>();
 
         for attr in attrs.iter() {
-            element.remove_attribute(&attr);
+            element.remove_attribute(attr);
         }
     } else {
         element.remove_and_keep_content();
@@ -211,7 +211,7 @@ pub fn handle_tag_send(
             let _ = rewrite_anchor_element_send(element, commonmark, url);
         }
         "img" => {
-            let _ = rewrite_image_element_send(element, commonmark, &url);
+            let _ = rewrite_image_element_send(element, commonmark, url);
         }
         "table" => *inside_table = true,
         "tr" => {
